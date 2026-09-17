@@ -10,6 +10,7 @@ Assistente pessoal com interface inspirada no reator holográfico do Homem de Fe
 
 - **Reator holográfico animado** — núcleo pulsante, anéis de arcos orbitantes e partículas, renderizado proceduralmente em `<canvas>` (sem imagens)
 - **Conversa por voz** — fale pelo microfone (Web Speech API, `pt-BR`); a fala vira texto e é enviada automaticamente
+- **Login gerenciado Verdent** — Google ou e-mail/senha via Supabase Auth (`@verdent/auth-js`), com sessão persistente no botão **Entrar**
 - **Respostas faladas** — o assistente responde em voz alta com timbre grave e pausado, priorizando vozes britânicas/americanas com fallback pt-BR
 - **Modo conversa contínua** — após responder em voz, o assistente volta a ouvir sozinho; mãos livres
 - **Telemetria HUD** — painéis de uptime, tarefas e notificações com mini-gráficos

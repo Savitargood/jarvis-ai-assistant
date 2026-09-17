@@ -120,6 +120,59 @@ input {
   animation: pulse 2.4s ease-in-out infinite;
 }
 
+.auth-area {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.auth-user {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--ink-dim);
+}
+
+.auth-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 4px 14px;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.auth-btn:hover {
+  border-color: rgb(247 169 46 / 40%);
+  color: var(--accent);
+}
+
+.auth-btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #241300;
+}
+
+.auth-btn--primary:hover {
+  background: #ffbd5c;
+  color: #241300;
+  box-shadow: 0 0 16px rgb(247 169 46 / 30%);
+}
+
 /* ---------- console grid ---------- */
 
 .console {
@@ -715,6 +768,10 @@ input {
   }
 
   .nav-clock {
+    display: none;
+  }
+
+  .auth-user {
     display: none;
   }
 }
