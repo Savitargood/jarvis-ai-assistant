@@ -1,0 +1,68 @@
+name: J.A.R.V.I.S. Deployment Pipeline & CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  test-and-build:
+    name: Audit & Build System
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Validate System Files
+        run: |
+          echo "Verificando integridade da interface J.A.R.V.I.S..."
+          test -f index.html || (echo "Erro: index.html não encontrado" && exit 1)
+
+      - name: Build Production Bundle
+        run: npm run build
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jarvis-dist
+          path: dist
+
+  deploy-gh-pages:
+    name: Deploy to GitHub Pages
+    needs: test-and-build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: jarvis-dist
+          path: dist
+
+      - name: Deploying Application
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist
+          branch: gh-pages
