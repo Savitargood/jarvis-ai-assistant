@@ -6,12 +6,28 @@ import TelemetryRail from './components/TelemetryRail';
 import ReactorOrb from './components/ReactorOrb';
 import type { Message } from './types';
 
-const REPLIES = [
+const FALLBACK_REPLIES = [
   'Todos os sistemas nominais, Senhor. Os diagnósticos de rotina não apresentaram anomalias.',
   'Entendido, Senhor. Solicitação registrada e recursos realocados conforme necessário.',
-  'Muito observador, Senhor. Preparei um resumo dos dados mais recentes para sua análise.',
-  'Às ordens. Iniciando o procedimento e mantendo o Senhor informado a cada etapa.',
 ];
+
+const CHAT_ENDPOINT =
+  'https://supabase-api-prod.verdent.ai/p/pd913e5ed597a04d9ffaa/functions/v1/jarvis-chat';
+
+async function askJarvis(history: Message[]): Promise<string | null> {
+  try {
+    const res = await fetch(CHAT_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: history.slice(-12) }),
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { reply?: string };
+    return data.reply ?? null;
+  } catch {
+    return null;
+  }
+}
 
 function greeting(): string {
   const hour = new Date().getHours();
@@ -78,18 +94,23 @@ export default function App() {
     lastInputWasVoice.current = viaVoice;
     window.speechSynthesis?.cancel();
     const userMessage: Message = { id: nextId++, role: 'user', text, time: now() };
-    setMessages((current) => [...current, userMessage]);
-    setIsTyping(true);
-    const reply = REPLIES[replyIndex.current % REPLIES.length];
-    replyIndex.current += 1;
-    window.setTimeout(() => {
-      setIsTyping(false);
-      setMessages((current) => [
-        ...current,
-        { id: nextId++, role: 'assistant', text: reply, time: now() },
-      ]);
-      if (!speak(reply) && viaVoice) setResumeSignal((signal) => signal + 1);
-    }, 1200);
+    setMessages((current) => {
+      const history = [...current, userMessage];
+      setIsTyping(true);
+      void askJarvis(history).then((reply) => {
+        setIsTyping(false);
+        const finalReply =
+          reply ??
+          FALLBACK_REPLIES[replyIndex.current % FALLBACK_REPLIES.length];
+        replyIndex.current += 1;
+        setMessages((currentMessages) => [
+          ...currentMessages,
+          { id: nextId++, role: 'assistant', text: finalReply, time: now() },
+        ]);
+        if (!speak(finalReply) && viaVoice) setResumeSignal((signal) => signal + 1);
+      });
+      return history;
+    });
   }
 
   return (
